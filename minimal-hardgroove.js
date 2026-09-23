@@ -1,22 +1,25 @@
 samples('github:tidalcycles/dirt-samples')
 
+const KICK_ON = false     // true = main_kick plays AND the visual reacts
+
 setcpm(133/4)
 // Initialize Hydra with Strudel feed enabled
 await initHydra({feedStrudel:true})
 // Hydration of the visual/audio source
 // BASE: two stripe patterns, the second rotated 90°, blended with diff to make a moiré grid
-osc(60,-0.015,0.3)                 // osc(frequency, sync, offset): 60 = stripe density; negative sync = slow drift one way
-  .diff(osc(60,0.08).rotate(Math.PI/2))   // subtract a crossed stripe layer; 0.08 = its speed, Math.PI/2 = 90° turn
+osc(30,-0.015,0.3)                 // osc(frequency, sync, offset): 60 = stripe density; negative sync = slow drift one way
+  .diff(osc(25,0.07).rotate(Math.PI/2))   // subtract a crossed stripe layer; 0.08 = its speed, Math.PI/2 = 90° turn
 
   // WARP: noise bends the grid; the noise is itself wobbled by a rocking osc
 	.modulateScale(
-	  noise(3.5,0.25)              // noise(scale, speed): lower scale = bigger blobs, higher speed = faster movement
+	  noise(3.4,0.25)              // noise(scale, speed): lower scale = bigger blobs, higher speed = faster movement
 	    .modulateScale(osc(15).rotate(()=>Math.sin(time/2))),  // rocks back and forth; time/2 = rocking speed
 	  0.6)                         // warp strength: 0 = none, 2 = wild
 
   // COLOR: tint (red, green, blue multipliers) then punch the contrast
 	.color(1,0.5,0.4)              // less green and blue = warm look; try (0.4,0.8,1) for cold blue
-	.contrast(1.4)                 // above 1 = harder blacks/whites, below 1 = softer
+    // .color(0.4,0.8,1)
+	.contrast(1)                 // above 1 = harder blacks/whites, below 1 = softer
 
   // FEEDBACK: adds the previous frame (o0) back in, rippled by itself
 	.add(src(o0).modulate(o0,.04),.6)   // .04 = ripple amount (0 = still, 0.2 = melting); .6 = trail strength (0 = none, 0.95 = near-frozen, can burn out)
@@ -28,6 +31,10 @@ osc(60,-0.015,0.3)                 // osc(frequency, sync, offset): 60 = stripe 
 
   // BREATHING ZOOM
 	.modulateScale(osc(2),-0.2)    // osc(2) = zoom pulse speed; -0.2 = pull in, positive = push out
+
+  // KICK REACTION: only active when KICK_ON = true
+    .scale(KICK_ON ? H("[0.85 0.9 0.95 0.98 1 1 1 1]*4") : 1)          // punch-in on each hit, eases back to normal
+    .brightness(KICK_ON ? H("[0.3 0.2 0.1 0.05 0 0 0 0]*4") : 0)        // white flash on each hit, fades out
 
   .out()                           // no argument = output o0, which the feedback line above reads
 //
@@ -88,12 +95,13 @@ let main_kick = s("<[sbd!3 [sbd sbd]] [[sbd!2 [sbd sbd ]] sbd]>")
 bass: sub
 
 track: stack(
-    // metal,
+    metal,
     hardgroove,
-    hat,
-    groove,
+    // hat,
+    // groove,
     kick,
-    // main_kick,
+    (KICK_ON ? [main_kick] : []),   // main_kick only joins when KICK_ON = true
+
 )
 // minimal hardgroove track configuration
 // .lpf(slider(0,0,2000))
