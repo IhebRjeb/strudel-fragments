@@ -69,6 +69,7 @@ track: stack(
     // metal,
     hardgroove,
     hat,
+    groove,
     kick,
     // main_kick,
 )
