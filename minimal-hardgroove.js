@@ -4,10 +4,32 @@ setcpm(133/4)
 // Initialize Hydra with Strudel feed enabled
 await initHydra({feedStrudel:true})
 // Hydration of the visual/audio source
-src(s0).kaleid(H("<7 13 21>"))
-    .diff(osc(1,0.5,13))
-    .modulateScale(osc(2,-0.5,.5))
-    .out()
+// BASE: two stripe patterns, the second rotated 90°, blended with diff to make a moiré grid
+osc(60,-0.015,0.3)                 // osc(frequency, sync, offset): 60 = stripe density; negative sync = slow drift one way
+  .diff(osc(60,0.08).rotate(Math.PI/2))   // subtract a crossed stripe layer; 0.08 = its speed, Math.PI/2 = 90° turn
+
+  // WARP: noise bends the grid; the noise is itself wobbled by a rocking osc
+	.modulateScale(
+	  noise(3.5,0.25)              // noise(scale, speed): lower scale = bigger blobs, higher speed = faster movement
+	    .modulateScale(osc(15).rotate(()=>Math.sin(time/2))),  // rocks back and forth; time/2 = rocking speed
+	  0.6)                         // warp strength: 0 = none, 2 = wild
+
+  // COLOR: tint (red, green, blue multipliers) then punch the contrast
+	.color(1,0.5,0.4)              // less green and blue = warm look; try (0.4,0.8,1) for cold blue
+	.contrast(1.4)                 // above 1 = harder blacks/whites, below 1 = softer
+
+  // FEEDBACK: adds the previous frame (o0) back in, rippled by itself
+	.add(src(o0).modulate(o0,.04),.6)   // .04 = ripple amount (0 = still, 0.2 = melting); .6 = trail strength (0 = none, 0.95 = near-frozen, can burn out)
+
+  // FINISH: flip colors, lift brightness, punch contrast again
+	.invert()                      // delete this line to un-invert
+	.brightness(0.1)               // -1 to 1; raise if the image gets too dark
+	.contrast(1.2)
+
+  // BREATHING ZOOM
+	.modulateScale(osc(2),-0.2)    // osc(2) = zoom pulse speed; -0.2 = pull in, positive = push out
+
+  .out()                           // no argument = output o0, which the feedback line above reads
 //
 
 all(x => x.fft(4).scope({pos:0 , smear:.95}))
