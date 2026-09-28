@@ -16,7 +16,7 @@ samples('github:bubobubobubobubo/dough-fox')
 
 // osc(13,.2,13).kaleid(13).blend(noise(1, 0.1), 0.7).out()
 
-_piano: s("fmpiano/2")
+piano: s("fmpiano/2")
   .note("e")
   .delay(3/16).delaytime(2/16).delayfeedback(0.9)
   .lpf(1600).lfo({sync: 1/5, depth: 1.75, curve: 2})
@@ -25,7 +25,7 @@ _piano: s("fmpiano/2")
   .room(.5)
   .gain(.6)
   ._pianoroll()
-_rythm:  s("<- bees:3!2 ->/4").room("<0.9:1 0.9:4>").lpf(800)
+// _rythm:  s("<- bees:3!2 ->/4").room("<0.9:1 0.9:4>").lpf(800)
 
 kick: s("bskick*10").n("6")
   .gain("0 .1 .1 .2 .3 .5 .8 .2 1 .1")
@@ -51,10 +51,18 @@ tabla: s("ftabla")
   .postgain(.6)
   .pan(rand2)
 
-snare: s("<bossdr550_sd>/2") // /4 ===> !2 ==> 1
+snare: s("<bossdr550_sd>/4") // /4 ===> !2 ==> 1
   .room(.2)
-  .gain(.7)
+  .speed("<1 0.875>")
+  .gain(.5)
   // .lpf(4000)
 
 drum: s("mc202_bd!4")
   .lpf(slider(4000,80,4000))
+
+bass: note("0 0 1 0 1 ")
+  .s("saw")
+  .shape(".1 .8 .2")
+  .lpf("<cosine.range(300,1400) square.range(300,1400)>")
+  .lpa(.7)
+  .gain(.6)
