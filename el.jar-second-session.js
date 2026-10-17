@@ -6,8 +6,19 @@
 
 samples('github:algorave-dave/samples')
 samples('https://samples.grbt.com.au/strudel.json')
+samples('github:yaxu/spicule')
 
 setcpm(132/4)
+
+SintroBees: s("bees")
+  .struct("<x x [x*4]>").n("<3 5 >")
+  .room(.4).lpf(600).lpenv("<4 2 1 0 -1 -2 -4>/4")
+  .dist("<.8 1.2 .9 .5>")
+  .decay(".2 .5 1 0")
+  .sometimesBy(.3, x => x.ply(4))
+  .gain(.7)
+  .o(2)
+  ._scope()
 
 Sbass: note("0*16").s("<saw  sawtooth>").room(.2).lpf("200 700 800 1400 700 4000").lpq("<0 10 20 30>").lpenv("<4 2 1 0 -1 -2 -4>/4")
 
@@ -24,5 +35,4 @@ Shuhahah: s("whatuneed:1").distort("<.9 .3 1.5 2 1.7>").speed("<1>")
 // all(x => x.lpf(slider(5000,100,5000)))
 
 // Svoice: s("<crime_pays - - ->/8")
-// Smorekick: s("brevenmore1:9").loopAt(1.1)
 Svocals: s("<- - - - - - technologic>/8").distort(.8).cut(1)
